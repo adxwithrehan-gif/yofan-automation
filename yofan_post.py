@@ -66,13 +66,24 @@ def run_yofan_automation():
     page = context.new_page()
 
     try:
-      print("Navigating to YoFan login...")
-      page.goto("https://yo.fan/login", timeout=60000)
+      print("Navigating to YoFan homepage...")
+      page.goto("https://yo.fan/", timeout=60000)
       page.wait_for_load_state("networkidle")
       time.sleep(5)
 
-      print("Logging in...")
-      # Broad selectors for username/email input field
+      # Agar login button screen par ho toh click karein
+      try:
+        login_nav = page.locator(
+            "a:has-text('Login'), button:has-text('Login'),"
+            " a:has-text('Sign in'), a[href*='login']"
+        ).first
+        if login_nav.is_visible():
+          login_nav.click()
+          time.sleep(3)
+      except:
+        pass
+
+      print("Filling login credentials...")
       email_input = page.locator(
           "input[type='email'], input[name='email'], input[type='text'],"
           " input:not([type='password']):not([type='hidden'])"
@@ -91,7 +102,7 @@ def run_yofan_automation():
       submit_btn.click()
       time.sleep(10)
 
-      # Har run par pehli available pin ka data fetch karna
+      # Har run par pehli available pin ka data fetch karna aur post process
       for i, pin_url in enumerate(pin_links[:1]):
         title, image_url = get_pinterest_data(pin_url)
 
