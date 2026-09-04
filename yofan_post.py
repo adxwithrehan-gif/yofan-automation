@@ -71,17 +71,18 @@ def run_yofan_automation():
       page.wait_for_load_state("networkidle")
       time.sleep(5)
 
-      # Agar login button screen par ho toh click karein
+      print("Looking for Login button...")
+      # Click login/sign in button on homepage if available
       try:
-        login_nav = page.locator(
-            "a:has-text('Login'), button:has-text('Login'),"
-            " a:has-text('Sign in'), a[href*='login']"
+        login_btn = page.locator(
+            "text=Login, text=Sign in, text=Log in, a[href*='login'],"
+            " button:has-text('Login')"
         ).first
-        if login_nav.is_visible():
-          login_nav.click()
-          time.sleep(3)
-      except:
-        pass
+        if login_btn.is_visible():
+          login_btn.click()
+          time.sleep(5)
+      except Exception as e:
+        print(f"Could not click login button directly: {e}")
 
       print("Filling login credentials...")
       email_input = page.locator(
@@ -102,28 +103,12 @@ def run_yofan_automation():
       submit_btn.click()
       time.sleep(10)
 
-      # Har run par pehli available pin ka data fetch karna aur post process
-      for i, pin_url in enumerate(pin_links[:1]):
-        title, image_url = get_pinterest_data(pin_url)
-
-        if not image_url:
-          print(f"[{i+1}] ❌ Data fetch nahi ho saka is pin ke liye: {pin_url}")
-          continue
-
-        print(f"\n[🚀 Publishing Post]")
-        print(f"Title: {title}")
-        print(f"Image: {image_url}")
-
-        page.goto("https://yo.fan/", timeout=60000)
-        page.wait_for_load_state("networkidle")
-        time.sleep(5)
-
-        print("[✔] Successfully logged in and ready for posting!")
+      print("[✔] Login process attempted successfully!")
 
     except Exception as e:
       print(f"❌ Error during execution: {e}")
       try:
-        print("Page HTML snippet:", page.content()[:1000])
+        print("Page HTML snippet:", page.content()[:1500])
       except:
         pass
     finally:
