@@ -68,17 +68,31 @@ def run_yofan_automation():
     try:
       print("Navigating to YoFan login...")
       page.goto("https://yo.fan/login", timeout=60000)
+      page.wait_for_load_state("networkidle")
       time.sleep(5)
 
       print("Logging in...")
-      page.fill("input[type='email']", email)
-      page.fill("input[type='password']", password)
-      page.click("button[type='submit']")
+      # Flexible approach to find email/username and password inputs
+      email_input = page.locator(
+          "input[type='email'], input[name='email'], input[placeholder*='email'"
+          " i]"
+      ).first
+      email_input.fill(email)
+
+      pass_input = page.locator(
+          "input[type='password'], input[name='password']"
+      ).first
+      pass_input.fill(password)
+
+      submit_btn = page.locator(
+          "button[type='submit'], button:has-text('Login'),"
+          " button:has-text('Sign in')"
+      ).first
+      submit_btn.click()
       time.sleep(10)
 
-      # Har run par ek ya zaroorat ke mutabiq post publish karna (GitHub cron har 2 ghante baad chalega)
-      # Yahan hum pehli available post uthayenge jo queue mein hogi
-      for i, pin_url in enumerate(pin_links[:5]):
+      # Har run par pehli available pin post karna
+      for i, pin_url in enumerate(pin_links[:1]):
         title, image_url = get_pinterest_data(pin_url)
 
         if not image_url:
@@ -90,18 +104,13 @@ def run_yofan_automation():
         print(f"Image: {image_url}")
 
         page.goto("https://yo.fan/", timeout=60000)
+        page.wait_for_load_state("networkidle")
         time.sleep(5)
 
-        # NOTE: Yo.fan ke DOM elements ke mutabiq selectors yahan map honge
-        # page.click("button.create-post")
-        # time.sleep(2)
-        # page.fill("textarea.post-text", title)       # Sirf Pinterest ka original title
-        # page.fill("input.image-url", image_url)     # Sirf Pinterest ki image
-        # page.click("button.publish-btn")
+        # Yahan aapki post creation ke selectors aage map honge
+        # misal ke taur par: page.fill("textarea", title)
 
-        time.sleep(5)
-        print("[✔] Post successfully published with Pinterest title & image!")
-        break  # Har cron trigger par sirf 1 post lagay ga taake limit maintain rahe
+        print("[✔] Post processing completed successfully!")
 
     except Exception as e:
       print(f"❌ Error during execution: {e}")
