@@ -23,6 +23,9 @@ jobs:
           pip install playwright requests
           playwright install --with-deps chromium
 
+      - name: Verify Files
+        run: ls -la
+
       - name: Run Posting Script
         env:
           YOFAN_USER: ${{ secrets.YOFAN_USER }}
