@@ -72,10 +72,10 @@ def run_yofan_automation():
       time.sleep(5)
 
       print("Logging in...")
-      # Flexible approach to find email/username and password inputs
+      # Broad selectors for username/email input field
       email_input = page.locator(
-          "input[type='email'], input[name='email'], input[placeholder*='email'"
-          " i]"
+          "input[type='email'], input[name='email'], input[type='text'],"
+          " input:not([type='password']):not([type='hidden'])"
       ).first
       email_input.fill(email)
 
@@ -86,12 +86,12 @@ def run_yofan_automation():
 
       submit_btn = page.locator(
           "button[type='submit'], button:has-text('Login'),"
-          " button:has-text('Sign in')"
+          " button:has-text('Sign in'), button:has-text('Log in')"
       ).first
       submit_btn.click()
       time.sleep(10)
 
-      # Har run par pehli available pin post karna
+      # Har run par pehli available pin ka data fetch karna
       for i, pin_url in enumerate(pin_links[:1]):
         title, image_url = get_pinterest_data(pin_url)
 
@@ -107,13 +107,14 @@ def run_yofan_automation():
         page.wait_for_load_state("networkidle")
         time.sleep(5)
 
-        # Yahan aapki post creation ke selectors aage map honge
-        # misal ke taur par: page.fill("textarea", title)
-
-        print("[✔] Post processing completed successfully!")
+        print("[✔] Successfully logged in and ready for posting!")
 
     except Exception as e:
       print(f"❌ Error during execution: {e}")
+      try:
+        print("Page HTML snippet:", page.content()[:1000])
+      except:
+        pass
     finally:
       browser.close()
 
